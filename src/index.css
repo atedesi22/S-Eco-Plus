@@ -1,1 +1,64 @@
 @import 'tailwindcss';
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s ease-out forwards;
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+
+@keyframes coinDeposit {
+  0% {
+    transform: translateY(-20px) scale(0.7) rotateY(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1) rotateY(90deg);
+  }
+  50% {
+    transform: translateY(48px) scale(0.95) rotateY(360deg);
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+  55%, 100% {
+    transform: translateY(52px) scale(0.8) rotateX(70deg);
+    opacity: 0;
+  }
+}
+
+@keyframes pingSlow {
+  0% {
+    transform: scale(0.4) rotateX(70deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    border-color: #34d399;
+  }
+  100% {
+    transform: scale(1.8) rotateX(70deg);
+    opacity: 0;
+  }
+}
+
+.animate-coin-deposit {
+  animation: coinDeposit 1.6s cubic-bezier(0.6, -0.28, 0.735, 0.045) infinite;
+}
+
+.animate-ping-slow {
+  animation: pingSlow 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}

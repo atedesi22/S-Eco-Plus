@@ -42,11 +42,11 @@ const Register = () => {
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-4">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         {/* Logo */}
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-seco-green rounded-xl font-black text-seco-navy text-xl shadow-lg shadow-emerald-500/10 mb-4">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-[#20A376] rounded-xl font-black text-[#0F2942]y text-xl shadow-lg shadow-emerald-500/10 mb-4">
           S
         </div>
-        <h2 className="text-2xl font-black text-seco-navy tracking-tight">
-          Créer un compte S ECO <span className="text-seco-green">PLUS</span>
+        <h2 className="text-2xl font-black text-[#0F2942]y tracking-tight">
+          Créer un compte S ECO <span className="text-[#20A376]">PLUS</span>
         </h2>
         <p className="mt-1 text-xs text-slate-500">
           Rejoignez notre réseau de tontines et d'épargne sécurisée
@@ -82,7 +82,7 @@ const Register = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Ex: Paul Emmanuel"
-                    className="w-full text-sm pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-seco-green"
+                    className="w-full text-sm pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#20A376]"
                   />
                 </div>
               </div>
@@ -99,7 +99,7 @@ const Register = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="Ex: 690000000"
-                    className="w-full text-sm pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-seco-green"
+                    className="w-full text-sm pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#20A376]"
                   />
                 </div>
               </div>
@@ -168,7 +168,7 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full text-sm pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-seco-green"
+                    className="w-full text-sm pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#20A376]"
                   />
                 </div>
               </div>
@@ -176,7 +176,7 @@ const Register = () => {
               {/* Bouton de soumission */}
               <button
                 type="submit"
-                className="w-full flex justify-center items-center gap-2 text-xs font-bold uppercase tracking-wider text-white bg-seco-navy hover:bg-slate-800 py-3.5 rounded-xl shadow-md transition-all mt-2"
+                className="w-full flex justify-center items-center gap-2 text-xs font-bold uppercase tracking-wider text-white bg-[#0F2942]y hover:bg-slate-800 py-3.5 rounded-xl shadow-md transition-all mt-2"
               >
                 Créer mon compte <ArrowRight size={14} />
               </button>
@@ -186,7 +186,7 @@ const Register = () => {
           <div className="text-center pt-2 border-t border-slate-100">
             <p className="text-xs text-slate-500">
               Déjà membre ?{' '}
-              <Link to="/login" className="font-bold text-seco-green hover:underline">
+              <Link to="/login" className="font-bold text-[#20A376] hover:underline">
                 Connectez-vous ici
               </Link>
             </p>
