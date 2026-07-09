@@ -6,6 +6,7 @@ import DashboardLayout from './components/layout/DashboardLayout';
 
 // Vos Pages
 import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
 import Overview from './pages/Dashboard/Overview';
 import ClientDashboard from './pages/Client/ClientDashboard';
 
@@ -35,6 +36,7 @@ function AppContent() {
       <Routes>
         {/* Route Publique */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Aiguillage automatique à la racine */}
         <Route path="/" element={<RootRedirect />} />
