@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Menu, Bell, User, LogOut } from 'lucide-react';
 
-const Navbar = ({ toggleSidebar }) => {
+const Navbar = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
 
   // Sécurité si aucun utilisateur n'est connecté au rendu initial
@@ -17,7 +17,7 @@ const Navbar = ({ toggleSidebar }) => {
         {/* Le bouton menu hamburger est masqué pour les clients puisqu'ils n'ont pas de sidebar admin */}
         {!isClient && (
           <button 
-            onClick={toggleSidebar}
+            onClick={onMenuToggle}
             className="p-2 rounded-xl text-slate-600 hover:bg-slate-50 lg:hidden transition-colors"
           >
             <Menu size={22} />

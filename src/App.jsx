@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Importation des composants communs et de navigation
 import Preloader from './components/common/Preloader';
-import Navbar from './components/layout/Navbar';     // Ta Navbar
-import Sidebar from './components/layout/Sidebar';   // Ta Sidebar
+import Navbar from './components/layout/Navbar';     
+import Sidebar from './components/layout/Sidebar';   
 
 // Importation de tes pages
 import Login from './pages/Auth/Login';
@@ -14,18 +15,31 @@ import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import ClientDashboard from './pages/Dashboard/ClientDashboard';
 
 /**
- * Composant de Layout Global pour l'espace connecté
- * Il structure la Sidebar à gauche, la Navbar en haut et le contenu à droite
+ * Layout Global avec Gestion du Menu Mobile Connecté
  */
 const DashboardLayout = ({ children }) => {
-  return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* 1. Barre latérale fixe ou rétractable */}
-      <Sidebar />
+  // Cet état gère l'ouverture/fermeture de la sidebar sur mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-      {/* 2. Contenu principal (Navbar + Pages) */}
+  return (
+    <div className="flex h-screen bg-gray-50 overflow-hidden relative">
+      
+      {/* 1. Sidebar : Elle reçoit l'état et la fonction pour se fermer (ex: clic sur un lien ou overlay) */}
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+
+      {/* Overlay sombre en arrière-plan sur mobile quand la sidebar est ouverte */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* 2. Contenu principal */}
       <div className="flex flex-col flex-1 w-full overflow-y-auto">
-        <Navbar />
+        {/* Navbar : Elle reçoit la fonction pour basculer (toggle) l'état au clic du burger */}
+        <Navbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
+        
         <main className="p-6 content-fade">
           {children}
         </main>
@@ -35,7 +49,7 @@ const DashboardLayout = ({ children }) => {
 };
 
 /**
- * Gardien de Route (RBAC) réaligné
+ * Gardien de Route (RBAC)
  */
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -50,7 +64,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Si tout est OK, on affiche la page enveloppée dans notre superbe Layout
   return <DashboardLayout>{children}</DashboardLayout>;
 };
 
@@ -59,21 +72,19 @@ function AppContent() {
   const [isAppLoading, setIsAppLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsAppLoading(false), 2200);
+    const timer = setTimeout(() => setIsAppLoading(false), 4200);
     return () => clearTimeout(timer);
   }, []);
 
-  if (isAppLoading || loading) {
+  if (isAppLoading ) {
     return <Preloader />;
   }
-
+// || loading
   return (
     <Routes>
-      {/* 🔓 Routes Publiques (Pas de Navbar/Sidebar ici) */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* 🔐 Espace Administration avec Layout complet */}
       <Route 
         path="/admin" 
         element={
@@ -83,7 +94,6 @@ function AppContent() {
         } 
       />
 
-      {/* 🔐 Espace Client avec Layout complet */}
       <Route 
         path="/client" 
         element={
@@ -93,18 +103,12 @@ function AppContent() {
         } 
       />
 
-      {/* 🔄 Redirection automatique à la racine '/' selon le rôle */}
       <Route path="/" element={<HomeRedirect />} />
-
-      {/* Capture des routes inexistantes */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
 
-/**
- * Redirection intelligente à l'accueil selon le rôle exact dans ta DB
- */
 const HomeRedirect = () => {
   const { user } = useAuth();
 

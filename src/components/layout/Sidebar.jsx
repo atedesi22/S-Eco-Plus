@@ -12,7 +12,7 @@ import {
   X 
 } from 'lucide-react';
 
-const Sidebar = ({ isOpen, toggleSidebar, currentPath = '/' }) => {
+const Sidebar = ({ isOpen, setIsOpen, onMenuToggle, currentPath = '/' }) => {
   const { user, logout } = useAuth();
 
   // Si l'utilisateur est un Client, on ne lui affiche pas la Sidebar du personnel interne
@@ -72,21 +72,17 @@ const Sidebar = ({ isOpen, toggleSidebar, currentPath = '/' }) => {
       {isOpen && (
         <div 
           className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden"
-          onClick={toggleSidebar}
+          onClick={onMenuToggle}
         />
       )}
 
-      <aside className={`
-        fixed top-0 bottom-0 left-0 z-50 flex flex-col w-64 bg-[#0F2942] text-white transition-transform duration-300 ease-in-out transform border-r border-slate-800
-        lg:translate-x-0 lg:static lg:h-screen
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 transition-transform duration-300 md:static md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between px-6 h-20 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#20A376] rounded-lg flex items-center justify-center font-black text-[#0F2942]">S</div>
             <span className="text-xl font-black tracking-wider text-white">S ECO <span className="text-[#F4BE2C]">PLUS</span></span>
           </div>
-          <button onClick={toggleSidebar} className="p-1 rounded-lg hover:bg-slate-800 lg:hidden text-slate-400 hover:text-white">
+          <button onClick={onMenuToggle} className="p-1 rounded-lg hover:bg-slate-800 lg:hidden text-slate-400 hover:text-white">
             <X size={20} />
           </button>
         </div>
