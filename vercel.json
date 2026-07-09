@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/(pwa-.*\\.png)",
+      "destination": "/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
