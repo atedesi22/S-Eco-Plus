@@ -162,7 +162,7 @@ function App() {
 
   useEffect(() => {
     // Simule la fin du preloader dès que l'app est prête (ex: 2.2s)
-    const timer = setTimeout(() => setIsAppLoading(false), 4200);
+    const timer = setTimeout(() => setIsAppLoading(false), 4100);
     return () => clearTimeout(timer);
   }, []);
 

@@ -56,9 +56,9 @@
 }
 
 .animate-coin-deposit {
-  animation: coinDeposit 1.6s cubic-bezier(0.6, -0.28, 0.735, 0.045) infinite;
+  animation: coinDeposit 1.7s cubic-bezier(0.6, -0.28, 0.735, 0.045) infinite;
 }
 
 .animate-ping-slow {
-  animation: pingSlow 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation: pingSlow 1.7s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
