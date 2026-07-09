@@ -1,0 +1,40 @@
+/* src/
+├── assets/                  # Logos (S Eco Plus), illustrations, icônes
+├── components/              # Composants UI réutilisables et globaux
+│   ├── common/              # Composants de base (Boutons, Inputs, Badges)
+│   │   ├── Button.jsx
+│   │   ├── Input.jsx
+│   │   └── Badge.jsx
+│   └── layout/              # Éléments de structure de la page
+│       ├── Navbar.jsx
+│       ├── Sidebar.jsx
+│       └── Footer.jsx
+├── context/                 # Contextes React (Authentification, État global)
+│   ├── AuthContext.jsx
+│   └── BudgetContext.jsx
+├── hooks/                   # Custom hooks (appels API, validation)
+│   ├── useAuth.js
+│   └── useFetch.js
+├── pages/                   # Pages principales de l'application
+│   ├── Auth/                # Connexion, Inscription, Récupération
+│   │   ├── Login.jsx
+│   │   └── Register.jsx
+│   ├── Dashboard/           # Tableau de bord principal (Vue d'ensemble)
+│   │   └── Overview.jsx
+│   ├── Budget/              # Suivi budgétaire, simulateur, rapports
+│   │   ├── BudgetTracker.jsx
+│   │   └── Simulator.jsx
+│   ├── Demandes/            # Formulaires d'aide financière et suivi
+│   │   ├── FormulaireAide.jsx
+│   │   └── ListeDemandes.jsx
+│   └── Profile/             # Gestion du profil utilisateur
+│       └── Settings.jsx
+├── services/                # Configuration des appels API (Axios / Fetch)
+│   ├── api.js
+│   ├── authService.js
+│   └── budgetService.js
+├── utils/                   # Fonctions utilitaires (formateurs de date, devise)
+│   └── formatters.js
+├── App.jsx                  # Composant racine avec le routage
+├── index.css                # Styles globaux + Directives Tailwind
+└── main.jsx                 # Point d'entrée de l'application */
