@@ -1,76 +1,45 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Auth/Login';
-// import Register from './pages/Auth/Register';
-import Overview from './pages/Dashboard/Overview';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/Guards/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
-// import DashboardLayout from './components/Layout/DashboardLayout';
 
-// Un composant de garde temporaire pour simuler le blocage par rôle (RBAC)
-// Il sera interconnecté avec AuthContext très bientôt
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  // Simulation d'un utilisateur connecté (à remplacer par la logique API plus tard)
-  const user = {
-    isAuthenticated: true,
-    role: 'Commercial' // Changez ici pour tester ('SuperAdmin', 'Collectrice', etc.)
-  };
+// Vos Pages
+import Login from './pages/Auth/Login';
+import Overview from './pages/Dashboard/Overview';
 
-  if (!user.isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  return children;
-};
+// import AdminPanel from './pages/Admin/AdminPanel';
+// import Unauthorized from './pages/Errors/Unauthorized';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Routes Publiques */}
-        <Route path="/login" element={<Login />} />
-        {/* <Route path="/register" element={<Register />} /> */}
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Route Publique */}
+          <Route path="/login" element={<Login />} />
+          {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
 
-        {/* Routes Protégées - Accessibles par tous les employés connectés */}
-        <Route 
-          path="/dashboard" 
-          element={
+          {/* Routes Protégées Générales (Tous les utilisateurs authentifiés) */}
+          <Route path="/" element={
             <ProtectedRoute>
               <DashboardLayout>
                 <Overview />
               </DashboardLayout>
             </ProtectedRoute>
-          } 
-        />
+          } />
 
-        {/* Exemple de Route Restreinte (Seulement SuperAdmin et Comptable par exemple) */}
-        <Route 
-          path="/admin-settings" 
-          element={
-            <ProtectedRoute allowedRoles={['SuperAdmin', 'Comptable']}>
-              <div className="p-8 font-bold text-[#0F2942]">Espace Administration Strict</div>
+          {/* Route Hautement Sécurisée : Uniquement SuperAdmin et Chef d'agence */}
+          <Route path="/admin" element={
+            <ProtectedRoute allowedRoles={['SuperAdmin', "Chef d'agence"]}>
+              <DashboardLayout>
+                {/* <AdminPanel /> */}
+              </DashboardLayout>
             </ProtectedRoute>
-          } 
-        />
-
-        {/* Route d'erreur d'autorisation */}
-        <Route 
-          path="/unauthorized" 
-          element={
-            <div className="h-screen flex flex-col items-center justify-center bg-[#F8FAFC]">
-              <h1 className="text-4xl font-bold text-red-600 mb-2">Accès Refusé</h1>
-              <p className="text-[#1E293B]">Vous n'avez pas les permissions nécessaires pour voir cette page.</p>
-            </div>
-          } 
-        />
-
-        {/* Redirection par défaut */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+          } />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
