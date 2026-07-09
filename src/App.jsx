@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Auth/Login';
 // import Register from './pages/Auth/Register';
 import Overview from './pages/Dashboard/Overview';
+import DashboardLayout from './components/layout/DashboardLayout';
+// import DashboardLayout from './components/Layout/DashboardLayout';
 
 // Un composant de garde temporaire pour simuler le blocage par rôle (RBAC)
 // Il sera interconnecté avec AuthContext très bientôt
@@ -37,7 +39,9 @@ function App() {
           path="/dashboard" 
           element={
             <ProtectedRoute>
-              <Overview />
+              <DashboardLayout>
+                <Overview />
+              </DashboardLayout>
             </ProtectedRoute>
           } 
         />
