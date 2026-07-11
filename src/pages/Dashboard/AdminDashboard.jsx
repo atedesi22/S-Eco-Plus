@@ -4,9 +4,23 @@ import {
   LineChart, Line, PieChart, Pie, Cell 
 } from 'recharts';
 import { 
-  ShieldAlert, Activity, Key, Bug, Users, 
-  TrendingUp, Search, Filter, RefreshCw, CheckCircle2 
+  ShieldAlert, Activity, Key, Bug, Users, UserCheck, AlertTriangle, ShieldCheck,
+  TrendingUp, Search, Filter, RefreshCw, Terminal, UserX, CheckCircle2 
 } from 'lucide-react';
+
+// Données fictives initiales simulant l'état de la DB et de l'API Laravel logs
+const initialLogs = [
+  { id: 'LOG-4021', type: 'ERROR', message: 'Passport Token Expired Exception', component: 'AuthService', time: 'Il y a 2 min', status: 'Non résolu' },
+  { id: 'LOG-4020', type: 'INFO', message: 'User Login Successful (Rôle: Client)', component: 'LoginController', time: 'Il y a 5 min', status: 'Info' },
+  { id: 'LOG-4019', type: 'WARNING', message: 'Rate Limit Reached (IP: 192.168.1.45)', component: 'ThrottleRequests', time: 'Il y a 12 min', status: 'Surveillé' },
+  { id: 'LOG-4018', type: 'ERROR', message: 'SQLSTATE[23000]: Integrity constraint violation', component: 'KYCMigration', time: 'Il y a 30 min', status: 'Résolu' },
+];
+
+const initialUsers = [
+  { id: 1, name: 'Awa Diop', email: 'awa.diop@secoplus.com', role: 'Collectrice', status: 'Actif', zone: 'Zone A - Douala' },
+  { id: 2, name: 'Jean Marc', email: 'jean.marc@secoplus.com', role: 'Commercial', status: 'Suspendu', zone: 'Zone B - Yaoundé' },
+  { id: 3, name: 'Saliou Ndiaye', email: 'saliou@client.com', role: 'Client', status: 'Actif', zone: 'Compte Épargne Direct' },
+]
 
 
 
@@ -14,6 +28,9 @@ const AdminDashboard = () => {
   const [activeSubTab, setActiveSubTab] = useState('performance');
   const [searchLog, setSearchLog] = useState('');
   const [severityFilter, setSeverityFilter] = useState('ALL');
+  const [logs, setLogs] = useState(initialLogs);
+  const [users, setUsers] = useState(initialUsers);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // --- DONNÉES DES GRAPHIQUES (Performance des agents internes) ---
   const agentPerformanceData = [
@@ -86,6 +103,26 @@ const AdminDashboard = () => {
   // Fonction utilitaire locale pour le formatage de la monnaie (Remplacera formaters.js plus tard)
   const formatFCFA = (valeur) => {
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF', minimumFractionDigits: 0 }).format(valeur);
+  };
+
+
+  // Actions de modération à la volée
+  const toggleUserStatus = (id) => {
+    setUsers(users.map(u => {
+      if (u.id === id) {
+        return { ...u, status: u.status === 'Actif' ? 'Suspendu' : 'Actif' };
+      }
+      return u;
+    }));
+  };
+
+  const resolveLog = (id) => {
+    setLogs(logs.map(l => {
+      if (l.id === id) {
+        return { ...l, status: l.status === 'ERROR' ? 'Résolu' : 'Résolu' };
+      }
+      return l;
+    }));
   };
 
   return (
@@ -475,6 +512,152 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+
+
+      <div className="space-y-8">
+      
+      {/* 🔝 En-tête de Statut Rapide */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-5">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">SUPERVISION TECHNIQUE</h1>
+          <p className="text-sm text-slate-500">Contrôle du RBAC, monitoring des exceptions Passport et gestion des accès microfinance.</p>
+        </div>
+        <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition-all shadow-sm">
+          <RefreshCw className="w-4 h-4" /> Actualiser les Métriques
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        
+        {/* 🛡️ SECTION 1 & 2 : CRASH LOGGER & LOGS SYSTEME (Prend 2 colonnes) */}
+        <div className="xl:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <Terminal className="w-5 h-5 text-slate-600" /> Audit Trail & Exceptions API
+            </h2>
+            <span className="text-xs bg-red-50 text-red-600 px-2.5 py-1 rounded-full font-semibold border border-red-100">
+              {logs.filter(l => l.type === 'ERROR').length} Exceptions Actives
+            </span>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                    <th className="p-4">ID / Type</th>
+                    <th className="p-4">Message d'Exception</th>
+                    <th className="p-4">Contrôleur Backend</th>
+                    <th className="p-4">Statut</th>
+                    <th className="p-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm divide-y divide-slate-100 font-medium">
+                  {logs.map((log) => (
+                    <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="p-4">
+                        <span className="block font-mono text-xs text-slate-500">{log.id}</span>
+                        <span className={`inline-block text-[10px] font-black px-1.5 py-0.5 rounded mt-1 ${
+                          log.type === 'ERROR' ? 'bg-red-100 text-red-700' :
+                          log.type === 'WARNING' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {log.type}
+                        </span>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <p className="text-slate-800 truncate font-semibold">{log.message}</p>
+                        <span className="text-xs text-slate-400 block font-normal">{log.time}</span>
+                      </td>
+                      <td className="p-4 font-mono text-xs text-slate-600">
+                        {log.component}
+                      </td>
+                      <td className="p-4">
+                        <span className={`text-xs px-2 py-1 rounded-full font-bold ${
+                          log.status === 'Non résolu' ? 'text-red-600 bg-red-50' :
+                          log.status === 'Surveillé' ? 'text-amber-600 bg-amber-50' : 'text-emerald-600 bg-emerald-50'
+                        }`}>
+                          {log.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        {log.status !== 'Résolu' && log.type === 'ERROR' ? (
+                          <button 
+                            onClick={() => resolveLog(log.id)}
+                            className="text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            Fixer
+                          </button>
+                        ) : (
+                          <span className="text-xs text-slate-400 italic">Aucune</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* 👥 SECTION 3 : CONTROLE DES ROLES & ACTEURS S ECO PLUS (Prend 1 colonne) */}
+        <div className="space-y-4">
+          <div className="flex flex-col space-y-1">
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-slate-600" /> Modération des Comptes
+            </h2>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
+            {/* Barre de recherche d'acteurs */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input 
+                type="text" 
+                placeholder="Chercher collectrice, commercial..." 
+                className="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* Liste des acteurs */}
+            <div className="divide-y divide-slate-100 max-h-[340px] overflow-y-auto pr-1">
+              {users
+                .filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.role.toLowerCase().includes(searchTerm.toLowerCase()))
+                .map((user) => (
+                  <div key={user.id} className="py-3 flex items-center justify-between first:pt-0 last:pb-0">
+                    <div className="flex flex-col space-y-0.5">
+                      <span className="text-sm font-bold text-slate-800">{user.name}</span>
+                      <span className="text-[11px] text-slate-400 font-normal">{user.email}</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] font-black bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded uppercase">
+                          {user.role}
+                        </span>
+                        <span className="text-[10px] text-slate-400 italic">{user.zone}</span>
+                      </div>
+                    </div>
+
+                    {/* Bouton d'action sur le statut */}
+                    <button 
+                      onClick={() => toggleUserStatus(user.id)}
+                      title={user.status === 'Actif' ? 'Suspendre le compte' : 'Activer le compte'}
+                      className={`p-2 rounded-xl border transition-all ${
+                        user.status === 'Actif' 
+                          ? 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-100' 
+                          : 'bg-red-50 border-red-100 text-red-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-100'
+                      }`}
+                    >
+                      {user.status === 'Actif' ? <UserCheck className="w-4 h-4" /> : <UserX className="w-4 h-4" />}
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      </div>
 
     </div>
   );
