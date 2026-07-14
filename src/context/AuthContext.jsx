@@ -1,182 +1,371 @@
+// import React, { createContext, useContext, useState, useEffect } from 'react';
+// import API from '../services/api';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-// import axios from 'axios';
-import axios from 'axios';
-// Création du contexte d'authentification
-const AuthContext = createContext(null);
-
-// Liste des profils fictifs complets pour le développement S Eco Plus
-const FAKE_USERS = {
-  admin: { name: "Atedesi Paul", email: "paul@s-ecoplus.com", role: "SuperAdmin", agence: "Direction Générale" },
-  chef_agence: { name: "Mme Eteki", email: "eteki@s-ecoplus.com", role: "Chef d'agence", agence: "Douala-Akwa" },
-  chef_zone: { name: "Jean-Pierre T.", email: "jp.t@s-ecoplus.com", role: "Chef de zone", agence: "Littoral Zone A" },
-  collectrice: { name: "Florence N.", email: "florence@s-ecoplus.com", role: "Collectrice", agence: "Kribi Centre" },
-  commercial: { name: "Arthur M.", email: "arthur@s-ecoplus.com", role: "Commercial", agence: "Yaoundé-Messa" },
-  comptable: { name: "Samuel D.", email: "samuel@s-ecoplus.com", role: "Comptable", agence: "Direction Générale" },
-  secretaire: { name: "Carine O.", email: "carine@s-ecoplus.com", role: "Secrétaire", agence: "Douala-Akwa" },
-  client: { name: "Emmanuel Bohole", phone: "690000000", role: "Client", agence: "Douala-Akwa", soldeEpargne: 250000 }
-};
-
-// // Configuration de l'URL de base de l'API (à adapter selon votre environnement)
-// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// const AuthContext = createContext(null);
 
 // export const AuthProvider = ({ children }) => {
 //   const [user, setUser] = useState(null);
-//   const [token, setToken] = useState(localStorage.getItem('seco_token'));
-//   const [loading, setLoading] = useState(true);
+//   const [role, setRole] = useState(localStorage.getItem('role'));
 
-// // PAR CECI (Pour le mode developpement hors-ligne) :
-// // const [user, setUser] = useState({ name: "Atedesi Paul", role: "SuperAdmin" }); 
-// // const [token, setToken] = useState("fake-development-jwt-token");
-// // const [loading, setLoading] = useState(false); // Mettre à false pour sauter le chargement
+  
+//   const [token, setToken] = useState();
+//   const [loading, setLoading] = useState(true); // Commencer à true pour vérifier le token au chargement
 
-//   // Configuration globale d'Axios pour intercepter les requêtes et injecter le JWT
+
 //   useEffect(() => {
-//     if (token) {
-//       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-//       localStorage.setItem('seco_token', token);
-      
-//       // Récupérer le profil complet de l'utilisateur rafraîchi (incluant son rôle RBAC)
-//       fetchCurrentUser();
-//     } else {
-//       delete axios.defaults.headers.common['Authorization'];
-//       localStorage.removeItem('seco_token');
-//       setUser(null);
-//       setLoading(false);
-//     }
-//   }, [token]);
 
-//   // Fonction pour charger l'utilisateur connecté depuis l'API Laravel Passport
-//   const fetchCurrentUser = async () => {
-//     try {
-//       const response = await axios.get(`${API_URL}/user`);
-//       // Le backend doit retourner un objet contenant au moins : { id, name, email, role }
-//       setUser(response.data);
-//     } catch (error) {
-//       console.error("Erreur lors de la récupération de l'utilisateur:", error);
-//       logout(); // Déconnexion automatique si le token est invalide ou expiré
-//     } finally {
-//       setLoading(false);
+//     if (role === 'super_admin') {
+//       setToken(localStorage.getItem('secoplus_admin_token'))
 //     }
+//   const checkLoggedUser = async () => {
+//     // 🎯 On récupère le token physiquement sans dépendre du state React
+//     const storedToken = localStorage.getItem('secoplus_token');
+    
+//     if (storedToken) {
+//       try {
+//         const response = await API.get('/profile');
+//         const userData = response.data.data;
+        
+//         if (userData) {
+//           const rawRole = userData.roles && userData.roles.length > 0 ? userData.roles[0] : 'client';
+//           setUser({
+//             ...userData,
+//             role: rawRole,
+//             name: `${userData.first_name} ${userData.last_name}`
+//           });
+//         }
+//       } catch (error) {
+//         console.error("Session expirée ou jeton invalide:", error);
+//         // On nettoie localement sans relancer de boucle
+//         localStorage.removeItem('secoplus_token');
+//         setUser(null);
+//       }
+//     }
+    
+//     // On coupe le loader dans tous les cas
+//     setLoading(false);
 //   };
 
-//   // Action de Connexion (Login)
-//   const login = async (email, password) => {
-//     setLoading(true);
-//     try {
-//       const response = await axios.post(`${API_URL}/login`, { email, password });
-//       // L'API Laravel Passport doit renvoyer { access_token: "...", user: {...} }
-//       const { access_token, user: userData } = response.data;
+//   checkLoggedUser();
+// }, []); // ➔ 🎯 Tableau vide ! Cette vérification ne s'exécute QU'UNE SEULE FOIS au démarrage.
+
+//   /**
+//    * Connexion réelle à l'API Laravel Passport
+//    * @param {string} login (E-mail pour le personnel, Téléphone pour le client)
+//    * @param {string} password
+//    */
+//   const login = async (identifier, password) => {
+//   setLoading(true);
+//   try {
+//     const response = await API.post('/login', {
+//       login: identifier,
+//       password: password
+//     });
+
+//     console.log(response)
+
+//     // 🎯 On va chercher dans response.data.data à cause de ton helper Laravel
+//     const { access_token, user: rawUser } = response.data.data;
+
+//     if (access_token && rawUser) {
+//       const rawRole = rawUser.roles && rawUser.roles.length > 0 ? rawUser.roles[0] : 'client';
       
+//       const userData = {
+//         ...rawUser,
+//         role: rawRole, // ex: 'super_admin' ou 'client'
+//         name: `${rawUser.first_name} ${rawUser.last_name}` // Utile pour ton UI
+//       };
+
 //       setToken(access_token);
 //       setUser(userData);
-//       return { success: true };
-//     } catch (error) {
-//       return { 
-//         success: false, 
-//         message: error.response?.data?.message || "Identifiants invalides ou erreur serveur." 
-//       };
-//     } finally {
+//       if (role === 'super_admin') {
+//         localStorage.setItem('secoplus_admin_token', access_token);
+//         localStorage.setItem('role', role)
+//       } else if (role === 'dg_pdg') {
+//         localStorage.setItem('secoplus_dg_pdg_token', access_token);
+//       } else if (role === 'dom') {
+//         localStorage.setItem('secoplus_dom_token', access_token);
+//       } else if (role === 'daf') {
+//         localStorage.setItem('secoplus_daf_token', access_token);
+//       } else if (role === 'dr') {
+//         localStorage.setItem('secoplus_dr_token', access_token);
+//       } else if (role === 'da') {
+//         localStorage.setItem('secoplus_da_token', access_token);
+//       } else if (role === 'comptable') {
+//         localStorage.setItem('secoplus_comptable_token', access_token);
+//       } else if (role === 'secretaire') {
+//         localStorage.setItem('secoplus_secretaire_token', access_token);
+//       } else if (role === 'chef_commercial') {
+//         localStorage.setItem('secoplus_chef_commercial_token', access_token);
+//       } else if (role === 'collectrice') {
+//         localStorage.setItem('secoplus_collectrice_token', access_token);
+//       } else if (role === 'commercial') {
+//         localStorage.setItem('secoplus_commercial_token', access_token);
+//       } else if (role === 'client') {
+//         localStorage.setItem('secoplus_client_token', access_token);
+//       }
+ 
+//       // localStorage.setItem('secoplus_token', access_token);
 //       setLoading(false);
+//       return { success: true, role: rawRole };
 //     }
-//   };
+    
+//     throw new Error("Structure de réponse API inattendue.");
+//   } catch (error) {
+//     setLoading(false);
+//     // On récupère le message d'erreur du backend (ex: "Identifiants incorrects.")
+//     const errorMessage = error.response?.data?.message || "Erreur de connexion.";
+//     return { success: false, message: errorMessage };
+//   }
+// };
 
-//   // Action de Déconnexion (Logout)
+//   /**
+//    * Déconnexion sécurisée : Nettoyage local et appel API de révocation si nécessaire
+//    */
 //   const logout = async () => {
 //     try {
-//       // Optionnel: Appeler le endpoint Laravel Passport pour révoquer le token
-//       await axios.post(`${API_URL}/logout`);
+//       // Optionnel : Appel au backend pour révoquer le token OAuth2 dans Passport
+//       await API.post('/logout');
 //     } catch (e) {
-//       console.warn("Le token était déjà expiré côté serveur ou inaccessible.");
+//       // Échec silencieux si le token est déjà expiré côté serveur
 //     } finally {
-//       setToken(null);
 //       setUser(null);
-//       localStorage.removeItem('seco_token');
-//       setLoading(false);
+//       setToken(null);
+//       localStorage.removeItem('secoplus_token');
 //     }
 //   };
 
-//   // Fonction utilitaire RBAC pour vérifier si l'utilisateur possède un rôle spécifique
-//   // Accepte une chaîne ("SuperAdmin") ou un tableau de rôles (["SuperAdmin", "Comptable"])
+//   /**
+//    * Vérificateur de droits RBAC (Garde de routes)
+//    */
 //   const hasRole = (allowedRoles) => {
 //     if (!user || !user.role) return false;
-//     if (Array.isArray(allowedRoles)) {
-//       return allowedRoles.includes(user.role);
-//     }
+//     if (Array.isArray(allowedRoles)) return allowedRoles.includes(user.role);
 //     return user.role === allowedRoles;
 //   };
 
-//   const value = {
-//     user,
-//     token,
-//     loading,
-//     login,
-//     logout,
-//     hasRole
-//   };
-
-//   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+//   return (
+//     <AuthContext.Provider value={{ user, token, loading, login, logout, hasRole, setUser, setToken }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
 // };
 
-// // Hook personnalisé pour consommer facilement l'authentification dans les composants
-// export const useAuth = () => {
-//   const context = useContext(AuthContext);
-//   if (!context) {
-//     throw new Error("useAuth doit être utilisé à l'intérieur d'un AuthProvider");
-//   }
-//   return context;
-// };
+// export const useAuth = () => useContext(AuthContext);
 
 
+
+// 🔄 Cycle initial : Vérifier si un token valide existe déjà pour restaurer l'utilisateur
+  // useEffect(() => {
+  //   const checkLoggedUser = async () => {
+  //     if (token) {
+  //       try {
+  //         // Point de terminaison correspondant à ta fonction profile()
+  //         const response = await API.get('/profile');
+          
+  //         // 🎯 Correction : Ton profil Laravel renvoie son contenu dans .data.data
+  //         const userData = response.data.data;
+          
+  //         if (userData) {
+  //           const rawRole = userData.roles && userData.roles.length > 0 ? userData.roles[0] : 'client';
+  //           setUser({
+  //             ...userData,
+  //             role: rawRole,
+  //             name: `${userData.first_name} ${userData.last_name}`
+  //           });
+  //         }
+  //       } catch (error) {
+  //         console.error("Session expirée ou jeton invalide:", error);
+  //         logout();
+  //       }
+  //     }
+  //     setLoading(false);
+  //   };
+
+  //   checkLoggedUser();
+  // }, [token]);
+
+
+  import React, { createContext, useContext, useState, useEffect } from 'react';
+import API from '../services/api';
+
+const AuthContext = createContext(null);
+
+// 🎯 Dictionnaire de correspondance entre les rôles et leurs clés de stockage
+const TOKEN_KEYS = {
+  super_admin: 'secoplus_admin_token',
+  dg_pdg: 'secoplus_dg_pdg_token',
+  dom: 'secoplus_dom_token',
+  daf: 'secoplus_daf_token',
+  dr: 'secoplus_dr_token',
+  da: 'secoplus_da_token',
+  comptable: 'secoplus_comptable_token',
+  secretaire: 'secoplus_secretaire_token',
+  chef_commercial: 'secoplus_chef_commercial_token',
+  collectrice: 'secoplus_collectrice_token',
+  commercial: 'secoplus_commercial_token',
+  client: 'secoplus_client_token',
+};
 
 export const AuthProvider = ({ children }) => {
-  // Par défaut, on initialise à null pour forcer le passage par le Login au démarrage
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('seco_token'));
-  const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Connexion simulée intelligente
+  // Fonction utilitaire pour récupérer le token actuellement stocké, quel que soit le rôle
+  const getStoredToken = () => {
+    const currentRole = localStorage.getItem('secoplus_role');
+    if (currentRole && TOKEN_KEYS[currentRole]) {
+      return localStorage.getItem(TOKEN_KEYS[currentRole]);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const checkLoggedUser = async () => {
+      const storedToken = getStoredToken();
+      
+      if (storedToken) {
+        try {
+          // On injecte manuellement le token pour cet appel de vérification au démarrage
+          const response = await API.get('/profile', {
+            headers: { Authorization: `Bearer ${storedToken}` }
+          });
+          
+          const userData = response.data.data;
+          
+          if (userData) {
+            const rawRole = userData.roles && userData.roles.length > 0 ? userData.roles[0] : 'client';
+            
+            setToken(storedToken);
+            setUser({
+              ...userData,
+              role: rawRole,
+              name: `${userData.first_name} ${userData.last_name}`
+            });
+          }
+        } catch (error) {
+          console.error("Session expirée ou jeton invalide:", error);
+          logoutLocally();
+        }
+      }
+      setLoading(false);
+    };
+
+    checkLoggedUser();
+  }, []);
+
+  /**
+   * Connexion réelle à l'API Laravel Passport
+   */
   const login = async (identifier, password) => {
     setLoading(true);
-    
-    // Petite pause pour simuler un temps de latence réseau
-    await new Promise(resolve => setTimeout(resolve, 600));
+    try {
+      const response = await API.post('/login', {
+        login: identifier,
+        password: password
+      });
 
-    // Détection grossière : si le champ contient '@', c'est un membre du personnel
-    const isEmail = identifier.includes('@');
-    let foundUser = null;
+      const { access_token, user: rawUser } = response.data.data;
 
-    if (isEmail) {
-      // Simulation pour le personnel interne (recherche par mot-clé dans les emails fictifs)
-      const key = identifier.split('@')[0]; // ex: 'paul' ou 'florence'
-      if (key === 'paul' || key === 'admin') foundUser = FAKE_USERS.admin;
-      else if (key === 'eteki') foundUser = FAKE_USERS.chef_agence;
-      else if (key === 'florence') foundUser = FAKE_USERS.collectrice;
-      else if (key === 'samuel') foundUser = FAKE_USERS.comptable;
-      else foundUser = FAKE_USERS.commercial; // valeur par défaut pour les autres emails
-    } else {
-      // Simulation pour le client si c'est un numéro de téléphone
-      foundUser = FAKE_USERS.client;
-    }
+      if (access_token && rawUser) {
+        // Récupération du rôle réel retourné par l'API
+        const rawRole = rawUser.roles && rawUser.roles.length > 0 ? rawUser.roles[0] : 'client';
+        
+        const userData = {
+          ...rawUser,
+          role: rawRole,
+          name: `${rawUser.first_name} ${rawUser.last_name}`
+        };
 
-    if (foundUser) {
-      setUser(foundUser);
-      setToken("fake-jwt-token-for-" + foundUser.role);
-      localStorage.setItem('seco_token', "fake-jwt-token-for-" + foundUser.role);
+        // 1. Mise à jour des états React
+        setToken(access_token);
+        setUser(userData);
+
+        // 2. Sauvegarde du rôle actuel pour savoir quel token chercher au rechargement
+        localStorage.setItem('secoplus_role', rawRole);
+
+        // 3. Sauvegarde dynamique du token selon le rôle grâce au dictionnaire TOKEN_KEYS
+        const storageKey = TOKEN_KEYS[rawRole] || 'secoplus_client_token';
+        localStorage.setItem(storageKey, access_token);
+
+        setLoading(false);
+        return { success: true, role: rawRole };
+      }
+      
+      throw new Error("Structure de réponse API inattendue.");
+    } catch (error) {
       setLoading(false);
-      return { success: true, role: foundUser.role };
+      const errorMessage = error.response?.data?.message || "Erreur de connexion.";
+      return { success: false, message: errorMessage };
     }
-
-    setLoading(false);
-    return { success: false, message: "Identifiant ou mot de passe incorrect." };
   };
 
-  const logout = () => {
+  /**
+   * Nettoie les données d'authentification locales
+   */
+  // const logoutLocally = () => {
+  //   setUser(null);
+  //   setToken(null);
+  //   // Supprime le rôle et tous les tokens possibles de S Eco Plus
+  //   localStorage.removeItem('secoplus_role');
+  //   Object.values(TOKEN_KEYS).forEach(key => localStorage.removeItem(key));
+  // };
+
+  /**
+   * Déconnexion sécurisée : Nettoyage local et appel API de révocation
+   */
+ /**
+   * 1. Nettoyage local complet du LocalStorage et des états React
+   */
+  const logoutLocally = () => {
+    // Réinitialisation des états React pour couper l'accès aux routes
     setUser(null);
     setToken(null);
-    localStorage.removeItem('seco_token');
+
+    // Supprime le rôle pivot utilisé pour l'aiguillage
+    localStorage.removeItem('secoplus_role');
+
+    // Nettoie dynamiquement TOUS les jetons spécifiques aux rôles définis dans TOKEN_KEYS
+    Object.values(TOKEN_KEYS).forEach((storageKey) => {
+      localStorage.removeItem(storageKey);
+    });
+
+    // Optionnel : un clear de secours ciblé si tu as d'anciennes clés globales
+    localStorage.removeItem('secoplus_token');
+    localStorage.removeItem('role');
   };
 
+  /**
+   * 2. Déconnexion globale (Révocation côté API + Nettoyage local)
+   */
+  const logout = async () => {
+    setLoading(true);
+    try {
+      // On récupère le token de l'utilisateur actuellement connecté pour l'envoyer au backend
+      const currentToken = getStoredToken() || token;
+
+      if (currentToken) {
+        // Appel au serveur Laravel Passport pour révoquer le token OAuth2 actif
+        await API.post('/logout', {}, {
+          headers: {
+            Authorization: `Bearer ${currentToken}`
+          }
+        });
+      }
+    } catch (error) {
+      // Échec silencieux (ex: si le token était déjà expiré côté serveur)
+      console.warn("Échec de la révocation du token côté serveur lors du logout:", error);
+    } finally {
+      // Dans tous les cas (succès ou échec de l'API), on nettoie impérativement le navigateur
+      logoutLocally();
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Vérificateur de droits RBAC (Garde de routes)
+   */
   const hasRole = (allowedRoles) => {
     if (!user || !user.role) return false;
     if (Array.isArray(allowedRoles)) return allowedRoles.includes(user.role);
@@ -184,7 +373,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, hasRole, FAKE_USERS, setUser, setToken }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, hasRole, setUser, setToken }}>
       {children}
     </AuthContext.Provider>
   );

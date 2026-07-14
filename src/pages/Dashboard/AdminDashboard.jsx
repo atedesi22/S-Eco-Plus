@@ -17,8 +17,8 @@ const initialLogs = [
 ];
 
 const initialUsers = [
-  { id: 1, name: 'Awa Diop', email: 'awa.diop@secoplus.com', role: 'Collectrice', status: 'Actif', zone: 'Zone A - Douala' },
-  { id: 2, name: 'Jean Marc', email: 'jean.marc@secoplus.com', role: 'Commercial', status: 'Suspendu', zone: 'Zone B - Yaoundé' },
+  { id: 1, name: 'Awa Diop', email: 'awa.diop@secoplus.com', role: 'collectrice', status: 'Actif', zone: 'Zone A - Douala' },
+  { id: 2, name: 'Jean Marc', email: 'jean.marc@secoplus.com', role: 'commercial', status: 'Suspendu', zone: 'Zone B - Yaoundé' },
   { id: 3, name: 'Saliou Ndiaye', email: 'saliou@client.com', role: 'Client', status: 'Actif', zone: 'Compte Épargne Direct' },
 ]
 
@@ -53,19 +53,19 @@ const AdminDashboard = () => {
 
   // --- LOGS : HISTORIQUE COMPLET D'ACTIVITÉ (Du PDG au Client) ---
   const [activitesGlobales] = useState([
-    { id: 'act_1', utilisateur: 'Atedesi B. Paul (PDG)', role: 'SuperAdmin', action: 'Modification des paliers de taux RBAC', date: '2026-07-09 14:22', statut: 'Succès' },
-    { id: 'act_2', utilisateur: 'Florence N.', role: 'Collectrice', action: 'Saisie fiche de collecte terrain #CK90', date: '2026-07-09 13:45', statut: 'Succès' },
-    { id: 'act_3', utilisateur: 'Mme Carine', role: 'Secrétaire', action: 'Approbation KYC Nouveau Client ID-882', date: '2026-07-09 11:20', statut: 'Succès' },
+    { id: 'act_1', utilisateur: 'Atedesi B. Paul (PDG)', role: 'super_admin', action: 'Modification des paliers de taux RBAC', date: '2026-07-09 14:22', statut: 'Succès' },
+    { id: 'act_2', utilisateur: 'Florence N.', role: 'collectrice', action: 'Saisie fiche de collecte terrain #CK90', date: '2026-07-09 13:45', statut: 'Succès' },
+    { id: 'act_3', utilisateur: 'Mme Carine', role: 'secretaire', action: 'Approbation KYC Nouveau Client ID-882', date: '2026-07-09 11:20', statut: 'Succès' },
     { id: 'act_4', utilisateur: 'Samuel Essomba', role: 'Client', action: 'Demande de micro-crédit Électroménager', date: '2026-07-09 10:05', statut: 'En attente' },
-    { id: 'act_5', utilisateur: 'Jean P.', role: 'Commercial', action: 'Extraction liste prospects agence', date: '2026-07-09 09:14', statut: 'Succès' },
+    { id: 'act_5', utilisateur: 'Jean P.', role: 'commercial', action: 'Extraction liste prospects agence', date: '2026-07-09 09:14', statut: 'Succès' },
   ]);
 
   // --- LOGS : CONNEXIONS, SESSIONS & SÉCURITÉ ---
   const [logsConnexions] = useState([
-    { id: 'log_1', utilisateur: 'Mme Carine', role: 'Secrétaire', ip: '197.244.23.102', appareil: 'Chrome / Windows', date: '2026-07-09 08:00', event: 'Connexion Réussie' },
+    { id: 'log_1', utilisateur: 'Mme Carine', role: 'secretaire', ip: '197.244.23.102', appareil: 'Chrome / Windows', date: '2026-07-09 08:00', event: 'Connexion Réussie' },
     { id: 'log_2', utilisateur: 'Inconnu', role: 'Tentative', ip: '45.12.88.9', appareil: 'Python Requests', date: '2026-07-09 04:12', event: 'Échec - Brute Force suspecté' },
-    { id: 'log_3', utilisateur: 'Florence N.', role: 'Collectrice', ip: '197.244.45.12', appareil: 'Safari / iPhone', date: '2026-07-09 07:45', event: 'Connexion Réussie (Terrain)' },
-    { id: 'log_4', utilisateur: 'Atedesi B. Paul (PDG)', role: 'SuperAdmin', ip: '102.64.12.5', appareil: 'Edge / MacOS', date: '2026-07-08 18:30', event: 'Connexion Réussie' },
+    { id: 'log_3', utilisateur: 'Florence N.', role: 'collectrice', ip: '197.244.45.12', appareil: 'Safari / iPhone', date: '2026-07-09 07:45', event: 'Connexion Réussie (Terrain)' },
+    { id: 'log_4', utilisateur: 'Atedesi B. Paul (PDG)', role: 'super_admin', ip: '102.64.12.5', appareil: 'Edge / MacOS', date: '2026-07-08 18:30', event: 'Connexion Réussie' },
   ]);
 
   // --- LOGS : AUDIT DES BUGS ET ERREURS SYSTÈME ---
@@ -95,9 +95,9 @@ const AdminDashboard = () => {
 
   // Liste fictive des dernières transactions pour le suivi d'activité
   const [recentTransactions] = useState([
-    { id: 1, client: "Amina Diop", type: "Dépôt Tontine", montant: 25000, agent: "Collectrice Kribi", statut: "Succès", date: "Il y a 5 min" },
-    { id: 2, client: "Jean Kaba", type: "Remboursement Crédit", montant: 110000, agent: "Commercial Douala", statut: "Succès", date: "Il y a 20 min" },
-    { id: 3, client: "Sarl Keita & Fils", type: "Demande Micro-Leasing", montant: 2500000, agent: "Chef d'agence", statut: "En attente", date: "Il y a 1h" },
+    { id: 1, client: "Amina Diop", type: "Dépôt Tontine", montant: 25000, agent: "collectrice Kribi", statut: "Succès", date: "Il y a 5 min" },
+    { id: 2, client: "Jean Kaba", type: "Remboursement Crédit", montant: 110000, agent: "commercial Douala", statut: "Succès", date: "Il y a 20 min" },
+    { id: 3, client: "Sarl Keita & Fils", type: "Demande Micro-Leasing", montant: 2500000, agent: "da", statut: "En attente", date: "Il y a 1h" },
   ]);
 
   // Fonction utilitaire locale pour le formatage de la monnaie (Remplacera formaters.js plus tard)
@@ -141,11 +141,11 @@ const AdminDashboard = () => {
          </div>
          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100 text-xs font-semibold text-[#0F2942]">
            <span className="w-2 h-2 rounded-full bg-[#20A376] animate-pulse"></span>
-           Mode Connecté (Rôle : SuperAdmin)
+           Mode Connecté (Rôle : super_admin)
          </div>
        </div>
 
-       {/* BLOC 1 : LE CLOISONNEMENT DES SOLDES (SECTION COMPTABLE CRUCIALE) */}
+       {/* BLOC 1 : LE CLOISONNEMENT DES SOLDES (SECTION comptable CRUCIALE) */}
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         
          {/* Carte Solde Consolidé Principal (Mise en avant maximale) */}
@@ -197,7 +197,7 @@ const AdminDashboard = () => {
          {/* Indicateur de Collecte de Terrain (Mobile-first indispensable) */}
          <div className="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-6 border border-emerald-100 shadow-sm flex items-center justify-between">
            <div className="space-y-1">
-             <span className="text-xs font-bold text-emerald-800 uppercase tracking-wide">Flux du Jour (Collectrices)</span>
+             <span className="text-xs font-bold text-emerald-800 uppercase tracking-wide">Flux du Jour (collectrices)</span>
              <h4 className="text-2xl font-black text-[#20A376]">{formatFCFA(metrics.collectesDuJour)}</h4>
              <p className="text-xs text-emerald-600">Montant total des cotisations synchronisées aujourd'hui.</p>
            </div>
@@ -364,8 +364,8 @@ const AdminDashboard = () => {
                     <td className="p-4 font-bold text-[#0F2942]y">{item.utilisateur}</td>
                     <td className="p-4">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        item.role === 'SuperAdmin' ? 'bg-purple-50 text-purple-700 border border-purple-100' :
-                        item.role === 'Collectrice' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-600'
+                        item.role === 'super_admin' ? 'bg-purple-50 text-purple-700 border border-purple-100' :
+                        item.role === 'collectrice' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-600'
                       }`}>
                         {item.role}
                       </span>

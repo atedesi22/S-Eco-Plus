@@ -69,7 +69,7 @@ const ClientDashboard = () => {
         setAgentOnline(true);
         setMessages(prev => [
           ...prev,
-          { id: Date.now(), sender: 'system', text: '🤖 NovaAI s\'efface. Mme Carine (Secrétaire Agence) est en ligne.', time: 'Maintenant' },
+          { id: Date.now(), sender: 'system', text: '🤖 NovaAI s\'efface. Mme Carine (secretaire Agence) est en ligne.', time: 'Maintenant' },
           { id: Date.now() + 1, sender: 'agent', text: 'Bonjour ! Comment puis-je vous aider aujourd\'hui sur votre espace ?', time: 'Maintenant' }
         ]);
       }, 12000);
@@ -367,7 +367,7 @@ const ClientDashboard = () => {
               <div className="flex items-center gap-2">
                 {agentOnline ? <UserCheck size={18} className="text-[#20A376]" /> : <Bot size={18} className="text-[#F4BE2C]" />}
                 <div>
-                  <h4 className="text-xs font-bold">{agentOnline ? "Mme Carine (Secrétaire)" : "NovaAI - Assistant S Eco"}</h4>
+                  <h4 className="text-xs font-bold">{agentOnline ? "Mme Carine (secretaire)" : "NovaAI - Assistant S Eco"}</h4>
                   <p className="text-[9px] text-slate-300">{agentOnline ? "Prend la relève en ligne" : "Chatbot intelligent actif"}</p>
                 </div>
               </div>

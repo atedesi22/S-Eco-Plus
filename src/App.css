@@ -37,4 +37,19 @@
 │   └── formatters.js
 ├── App.jsx                  # Composant racine avec le routage
 ├── index.css                # Styles globaux + Directives Tailwind
-└── main.jsx                 # Point d'entrée de l'application */
+└── main.jsx                 # Point d'entrée de l'application 
+ */
+
+
+ /* corrige moi l'aiguillage des routes suivants const handleQuickConnect = (profileKey) => {
+
+    const selected = FAKE_USERS[profileKey];
+
+    setUser(selected);
+
+    setToken("fake-jwt-" + selected.role);
+
+    navigate('/');
+
+  };                                                                                                                                 
+   en fonction des roles suivants super_admin, dg_pdg, dom, daf, dr, da, comptable, secretaire, chef_commercial, collectrice, commercial, client                                                                      $roles = [ */

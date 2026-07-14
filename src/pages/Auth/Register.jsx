@@ -134,8 +134,8 @@ const Register = () => {
                     className="w-full text-sm pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none appearance-none font-medium"
                   >
                     <option value="Client">Client (Standard)</option>
-                    <option value="Collectrice">Collectrice (Terrain)</option>
-                    <option value="Commercial">Commercial</option>
+                    <option value="collectrice">collectrice (Terrain)</option>
+                    <option value="commercial">commercial</option>
                   </select>
                 </div>
               </div>

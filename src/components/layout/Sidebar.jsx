@@ -16,7 +16,7 @@ const Sidebar = ({ isOpen, setIsOpen, onMenuToggle, currentPath = '/' }) => {
   const { user, logout } = useAuth();
 
   // Si l'utilisateur est un Client, on ne lui affiche pas la Sidebar du personnel interne
-  if (!user || user.role === 'Client') return null;
+  if (!user || user.role === 'client') return null;
 
   // Configuration des menus avec restriction par rôle (RBAC)
   const menuItems = [
@@ -24,43 +24,43 @@ const Sidebar = ({ isOpen, setIsOpen, onMenuToggle, currentPath = '/' }) => {
       title: 'Vue Générale', 
       icon: LayoutDashboard, 
       path: '/', 
-      roles: ['SuperAdmin', "Chef d'agence", 'Chef de zone', 'Collectrice', 'Commercial', 'Comptable', 'Secrétaire'] 
+      roles: ['super_admin', 'dg_pdg', 'dom', 'daf', 'dr', "da", 'chef_commercial', 'collectrice', 'commercial', 'comptable', 'secretaire'] 
     },
     { 
       title: 'Collecte de Terrain', 
       icon: Wallet, 
       path: '/collectes', 
-      roles: ['SuperAdmin', 'Collectrice', 'Comptable'] 
+      roles: ['super_admin', 'collectrice', 'comptable'] 
     },
     { 
       title: 'Gestion Tontines', 
       icon: TrendingUp, 
       path: '/tontines', 
-      roles: ['SuperAdmin', "Chef d'agence", 'Chef de zone', 'Collectrice', 'Comptable'] 
+      roles: ['super_admin', 'dg_pdg', 'dom', 'daf', 'dr', "da", 'chef_commercial', 'collectrice', 'comptable'] 
     },
     { 
       title: 'Crédits & Instructions', 
       icon: DollarSign, 
       path: '/credits', 
-      roles: ['SuperAdmin', "Chef d'agence", 'Commercial', 'Comptable'] 
+      roles: ['super_admin', 'dg_pdg', 'dom', 'daf', 'dr', "da", 'commercial', 'comptable'] 
     },
     { 
       title: 'E-Boutique Clients', 
       icon: ShoppingBag, 
       path: '/boutique', 
-      roles: ['SuperAdmin', 'Commercial', 'Secrétaire'] 
+      roles: ['super_admin', 'dg_pdg', 'dom', 'daf', 'dr', "da", 'commercial', 'secretaire'] 
     },
     { 
       title: 'Utilisateurs & KYC', 
       icon: Users, 
       path: '/users', 
-      roles: ['SuperAdmin', "Chef d'agence", 'Commercial', 'Secrétaire'] 
+      roles: ['super_admin', 'dg_pdg', 'dr', "da", 'commercial', 'secretaire'] 
     },
     { 
       title: 'Administration / RBAC', 
       icon: ShieldCheck, 
       path: '/admin', 
-      roles: ['SuperAdmin'] // Strictement réservé au SuperAdmin
+      roles: ['super_admin'] // Strictement réservé au super_admin
     },
   ];
 

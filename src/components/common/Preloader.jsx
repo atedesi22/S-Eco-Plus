@@ -13,7 +13,7 @@ const Preloader = () => {
         }
         return prev + 1;
       });
-    }, 20); // ~2 secondes au total
+    }, 42); // ~2 secondes au total
 
     return () => clearInterval(interval);
   }, []);
@@ -38,7 +38,7 @@ const Preloader = () => {
         <div className="absolute top-4 w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 p-[2px] shadow-[0_0_20px_rgba(52,211,153,0.4)] animate-coin-deposit flex items-center justify-center">
           {/* Design interne de la pièce avec le "S" de S Eco Plus */}
           <div className="w-full h-full rounded-full bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center border border-emerald-300/30">
-            <span className="text-white font-black text-sm tracking-tighter select-none">S</span>
+            <span className="text-white font-black text-sm tracking-tighter select-none">$</span>
           </div>
         </div>
 
