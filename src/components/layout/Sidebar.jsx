@@ -48,13 +48,13 @@ const Sidebar = ({ isOpen, setIsOpen, onMenuToggle, currentPath = '/' }) => {
       title: 'E-Boutique Clients', 
       icon: ShoppingBag, 
       path: '/boutique', 
-      roles: ['super_admin', 'dg_pdg', 'dom', 'daf', 'dr', "da", 'commercial', 'secretaire'] 
+      roles: ['super_admin', 'dg_pdg', 'dom', 'daf', 'dr', "da", 'collectrice', 'commercial', 'secretaire'] 
     },
     { 
       title: 'Utilisateurs & KYC', 
       icon: Users, 
       path: '/users', 
-      roles: ['super_admin', 'dg_pdg', 'dr', "da", 'commercial', 'secretaire'] 
+      roles: ['super_admin', 'dg_pdg', 'dr', "da", 'collectrice', 'commercial', 'secretaire'] 
     },
     { 
       title: 'Administration / RBAC', 

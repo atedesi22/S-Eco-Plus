@@ -288,7 +288,8 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import ClientDashboard from './pages/Dashboard/ClientDashboard';
-import CollecteTerrain from './pages/Dashboard/CollectriceDashboard.jsx';
+import CollectesPage from './pages/Collectrice/CollectriceDashboard.jsx';
+// import CollecteTerrain from './pages/Dashboard/CollectriceDashboard.jsx';
 
 /**
  * Layout Global avec Gestion du Menu Mobile Connecté
@@ -417,7 +418,7 @@ function AppContent() {
         path="/collectrice" 
         element={
           <ProtectedRoute allowedRoles={['collectrice', 'commercial']}>
-            <CollecteTerrain />
+            <CollectesPage />
           </ProtectedRoute>
         } 
       />
