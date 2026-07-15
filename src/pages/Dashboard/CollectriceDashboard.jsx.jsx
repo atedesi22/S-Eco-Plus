@@ -1,317 +1,280 @@
-import React, { useState } from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell 
-} from 'recharts';
-import { 
-  ShieldAlert, Activity, Key, Bug, Users, 
-  TrendingUp, Search, Filter, RefreshCw, CheckCircle2 
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+// import { useCollecteStore } from '../../stores/useCollecteStore';
+import { Search, Plus, Minus, Wifi, WifiOff, RefreshCw, CheckCircle, User } from 'lucide-react';
+import { useCollecteStore } from '../../store/useCollecteStore';
 
-const AdminDashboard = () => {
-  const [activeSubTab, setActiveSubTab] = useState('performance');
-  const [searchLog, setSearchLog] = useState('');
-  const [severityFilter, setSeverityFilter] = useState('ALL');
+// Exemple de données locales pour la recherche instantanée (à lier à l'API plus tard)
+const MOCK_CLIENTS = [
+  { id: 1, first_name: 'Amina', last_name: 'Diop', phone: '+237699000001', solde_principal: 45000, zone: 'Zone A' },
+  { id: 2, first_name: 'Jean', last_name: 'Kamdem', phone: '+237677000002', solde_principal: 120000, zone: 'Zone A' },
+  { id: 3, first_name: 'Fatou', last_name: 'Ndiaye', phone: '+237655000003', solde_principal: 15000, zone: 'Zone B' },
+];
 
-  // --- DONNÉES DES GRAPHIQUES (Performance des agents internes) ---
-  const agentPerformanceData = [
-    { name: 'Florence N. (Coll)', comptesCrees: 24, transactions: 145, volumeFCFA: 1250000 },
-    { name: 'Mme Carine (Sec)', comptesCrees: 42, transactions: 89, volumeFCFA: 850000 },
-    { name: 'Jean P. (Comm)', comptesCrees: 58, transactions: 34, volumeFCFA: 2100000 },
-    { name: 'Hervé T. (Chef Z)', comptesCrees: 12, transactions: 112, volumeFCFA: 3400000 },
-  ];
+export default function CollecteTerrain() {
+  const {
+    selectedClient,
+    montantSaisi,
+    transactionType,
+    offlineQueue,
+    setSelectedClient,
+    setMontantSaisi,
+    setTransactionType,
+    addToOfflineQueue,
+    clearSession
+  } = useCollecteStore();
 
-  const globalActivityTrend = [
-    { name: 'Lun', Connexions: 240, Transactions: 110, Erreurs: 4 },
-    { name: 'Mar', Connexions: 320, Transactions: 145, Erreurs: 2 },
-    { name: 'Mer', Connexions: 290, Transactions: 130, Erreurs: 7 },
-    { name: 'Jeu', Connexions: 410, Transactions: 195, Erreurs: 1 },
-    { name: 'Ven', Connexions: 480, Transactions: 240, Erreurs: 5 },
-    { name: 'Sam', Connexions: 180, Transactions: 95, Erreurs: 0 },
-  ];
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredClients, setFilteredClients] = useState([]);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE'];
+  // Détection du statut de la connexion internet
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
-  // --- LOGS : HISTORIQUE COMPLET D'ACTIVITÉ (Du PDG au Client) ---
-  const [activitesGlobales] = useState([
-    { id: 'act_1', utilisateur: 'Atedesi B. Paul (PDG)', role: 'super_admin', action: 'Modification des paliers de taux RBAC', date: '2026-07-09 14:22', statut: 'Succès' },
-    { id: 'act_2', utilisateur: 'Florence N.', role: 'collectrice', action: 'Saisie fiche de collecte terrain #CK90', date: '2026-07-09 13:45', statut: 'Succès' },
-    { id: 'act_3', utilisateur: 'Mme Carine', role: 'secretaire', action: 'Approbation KYC Nouveau Client ID-882', date: '2026-07-09 11:20', statut: 'Succès' },
-    { id: 'act_4', utilisateur: 'Samuel Essomba', role: 'Client', action: 'Demande de micro-crédit Électroménager', date: '2026-07-09 10:05', statut: 'En attente' },
-    { id: 'act_5', utilisateur: 'Jean P.', role: 'commercial', action: 'Extraction liste prospects agence', date: '2026-07-09 09:14', statut: 'Succès' },
-  ]);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
-  // --- LOGS : CONNEXIONS, SESSIONS & SÉCURITÉ ---
-  const [logsConnexions] = useState([
-    { id: 'log_1', utilisateur: 'Mme Carine', role: 'secretaire', ip: '197.244.23.102', appareil: 'Chrome / Windows', date: '2026-07-09 08:00', event: 'Connexion Réussie' },
-    { id: 'log_2', utilisateur: 'Inconnu', role: 'Tentative', ip: '45.12.88.9', appareil: 'Python Requests', date: '2026-07-09 04:12', event: 'Échec - Brute Force suspecté' },
-    { id: 'log_3', utilisateur: 'Florence N.', role: 'collectrice', ip: '197.244.45.12', appareil: 'Safari / iPhone', date: '2026-07-09 07:45', event: 'Connexion Réussie (Terrain)' },
-    { id: 'log_4', utilisateur: 'Atedesi B. Paul (PDG)', role: 'super_admin', ip: '102.64.12.5', appareil: 'Edge / MacOS', date: '2026-07-08 18:30', event: 'Connexion Réussie' },
-  ]);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
-  // --- LOGS : AUDIT DES BUGS ET ERREURS SYSTÈME ---
-  const [logsBugs] = useState([
-    { id: 'bug_1', module: 'API Passerelle SMS', message: 'Timeout 504 lors de l\'envoi du code OTP au client', gravite: 'CRITICAL', date: '2026-07-09 12:02', resolu: false },
-    { id: 'bug_2', module: 'Panier Catalogue', message: 'TypeError: Cannot read properties of undefined (reading qty)', gravite: 'MINOR', date: '2026-07-09 10:55', resolu: true },
-    { id: 'bug_3', module: 'Calcul Intérêts Tontine', message: 'Arrondi incorrect sur le calcul du prorata de commission', gravite: 'MAJOR', date: '2026-07-08 16:40', resolu: false },
-  ]);
+  // Recherche instantanée
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredClients([]);
+    } else {
+      const results = MOCK_CLIENTS.filter(
+        (client) =>
+          `${client.first_name} ${client.last_name}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          client.phone.includes(searchQuery)
+      );
+      setFilteredClients(results);
+    }
+  }, [searchQuery]);
 
-  // --- FILTRAGES DYNAMIQUES ---
-  const filteredBugs = logsBugs.filter(bug => {
-    const matchesSearch = bug.module.toLowerCase().includes(searchLog.toLowerCase()) || bug.message.toLowerCase().includes(searchLog.toLowerCase());
-    const matchesSeverity = severityFilter === 'ALL' || bug.gravite === severityFilter;
-    return matchesSearch && matchesSeverity;
-  });
+  // Raccourcis de montants XAF
+  const QUICK_AMOUNTS = [500, 1000, 2000, 5000, 10000];
+
+  const handleQuickAmount = (amount) => {
+    const current = parseInt(montantSaisi) || 0;
+    setMontantSaisi((current + amount).toString());
+  };
+
+  const handleClearAmount = () => {
+    setMontantSaisi('');
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedClient || !montantSaisi || parseInt(montantSaisi) <= 0) return;
+
+    const transaction = {
+      client_id: selectedClient.id,
+      client_name: `${selectedClient.first_name} ${selectedClient.last_name}`,
+      amount: parseInt(montantSaisi),
+      type: transactionType,
+    };
+
+    if (isOnline) {
+      // Simulation d'envoi API réussi
+      setSuccessMessage(`Envoi réussi : ${transactionType === 'depot' ? 'Dépôt' : 'Retrait'} de ${transaction.amount} XAF effectué pour ${transaction.client_name} !`);
+    } else {
+      // Mode Hors-ligne : sauvegarde locale
+      addToOfflineQueue(transaction);
+      setSuccessMessage(`⚠️ Mode hors-ligne : Transaction de ${transaction.amount} XAF enregistrée localement pour ${transaction.client_name}.`);
+    }
+
+    // Réinitialisation de la session de collecte après validation
+    setTimeout(() => {
+      setSuccessMessage('');
+      clearSession();
+      setSearchQuery('');
+    }, 4000);
+  };
 
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto font-sans animate-fade-in">
-      
-      {/* HEADER DE LA ZONE AUDIT */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#0F2942]y tracking-tight flex items-center gap-2">
-            <ShieldAlert className="text-rose-500 animate-pulse" /> Console d'Administration & Traçabilité (RBAC)
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Outils de monitoring en temps réel de l'écosystème financier S Eco Plus.
-          </p>
-        </div>
-        
-        <div className="flex bg-slate-100 p-1 rounded-xl self-start sm:self-center transition-all">
-          <button onClick={() => setActiveSubTab('performance')} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${activeSubTab === 'performance' ? 'bg-[#0F2942]y text-white shadow-sm' : 'text-slate-500 hover:text-[#0F2942]y'}`}>Performance Métier</button>
-          <button onClick={() => setActiveSubTab('activites')} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${activeSubTab === 'activites' ? 'bg-[#0F2942]y text-white shadow-sm' : 'text-slate-500 hover:text-[#0F2942]y'}`}>Flux d'Activités</button>
-          <button onClick={() => setActiveSubTab('securite')} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${activeSubTab === 'securite' ? 'bg-[#0F2942]y text-white shadow-sm' : 'text-slate-500 hover:text-[#0F2942]y'}`}>Connexions & Logs</button>
-          <button onClick={() => setActiveSubTab('bugs')} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${activeSubTab === 'bugs' ? 'bg-[#0F2942]y text-white shadow-sm' : 'text-slate-500 hover:text-[#0F2942]y'}`}>Bugs & Alertes</button>
+    <div className="min-h-screen bg-slate-50 p-4 pb-24  md:mx-auto md:shadow-lg md:rounded-3xl md:my-6">
+      {/* Header Statut Réseau */}
+      <div className="flex items-center justify-between bg-white p-3 rounded-2xl shadow-sm mb-4 border border-slate-100">
+        <h1 className="font-bold text-slate-800 text-lg">S ECO PLUS - Collecte</h1>
+        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${isOnline ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+          {isOnline ? (
+            <>
+              <Wifi size={14} /> En ligne
+            </>
+          ) : (
+            <>
+              <WifiOff size={14} /> Hors-ligne 
+            </>
+          )}
         </div>
       </div>
 
-      {/* --- SOUS-PANEL 1 : GRAPHIQUES DE PERFORMANCE INTERNE (RECHARTS) --- */}
-      {activeSubTab === 'performance' && (
-        <div className="space-y-6 transition-all duration-300 ease-in-out">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            {/* Graphique 1 : Comptes créés vs Transactions par agent */}
-            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-4 flex items-center gap-1">
-                <Users size={14} className="text-[#20A376]" /> Productivité : Création comptes & volume tx
-              </h3>
-              <div className="w-full h-64 text-xs">
-                <ResponsiveContainer width="100%" h="100%">
-                  <BarChart data={agentPerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" stroke="#94a3b8" />
-                    <YAxis stroke="#94a3b8" />
-                    <Tooltip cursor={{ fill: '#f8fafc' }} />
-                    <Legend />
-                    <Bar dataKey="comptesCrees" name="Comptes Créés" fill="#02fa9a" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="transactions" name="Transactions Validées" fill="#0f172a" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Graphique 2 : Tendance hebdomadaire de charge globale */}
-            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-4 flex items-center gap-1">
-                <TrendingUp size={14} className="text-[#F4BE2C]" /> Tendance hebdomadaire de charge globale
-              </h3>
-              <div className="w-full h-64 text-xs">
-                <ResponsiveContainer width="100%" h="100%">
-                  <LineChart data={globalActivityTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" stroke="#94a3b8" />
-                    <YAxis stroke="#94a3b8" />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="Connexions" name="Connexions" stroke="#3b82f6" strokeWidth={2} activeDot={{ r: 6 }} />
-                    <Line type="monotone" dataKey="Transactions" name="Transactions" stroke="#00C49F" strokeWidth={2} />
-                    <Line type="monotone" dataKey="Erreurs" name="Bugs levés" stroke="#f43f5e" strokeWidth={2} strokeDasharray="3 4" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-          </div>
+      {/* Notifications Files d'attente Hors-ligne */}
+      {offlineQueue.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-2xl mb-4 text-sm flex items-center justify-between">
+          <span>{offlineQueue.length} collecte(s) en attente de synchronisation.</span>
+          {isOnline && (
+            <button className="flex items-center gap-1 bg-amber-600 text-white px-2.5 py-1 rounded-lg text-xs font-medium hover:bg-amber-700 transition">
+              <RefreshCw size={12} className="animate-spin" /> Synchroniser
+            </button>
+          )}
         </div>
       )}
 
-      {/* --- SOUS-PANEL 2 : TRAÇABILITÉ HISTORIQUE COMPLET (PDG AU CLIENT) --- */}
-      {activeSubTab === 'activites' && (
-        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300">
-          <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-              <Activity size={14} className="text-blue-500" /> Registre d'audit immuable des activités
-            </h3>
-            <span className="text-[10px] bg-slate-200 font-bold px-2 py-0.5 rounded text-slate-600">Total : {activitesGlobales.length}</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
-                  <th className="p-4">Utilisateur</th>
-                  <th className="p-4">Rôle Prévu (RBAC)</th>
-                  <th className="p-4">Action entreprise</th>
-                  <th className="p-4">Date & Heure</th>
-                  <th className="p-4">Statut de l'événement</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                {activitesGlobales.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="p-4 font-bold text-[#0F2942]y">{item.utilisateur}</td>
-                    <td className="p-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        item.role === 'super_admin' ? 'bg-purple-50 text-purple-700 border border-purple-100' :
-                        item.role === 'collectrice' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-slate-100 text-slate-600'
-                      }`}>
-                        {item.role}
-                      </span>
-                    </td>
-                    <td className="p-4 text-slate-600">{item.action}</td>
-                    <td className="p-4 text-slate-400">{item.date}</td>
-                    <td className="p-4">
-                      <span className={`inline-flex items-center gap-1 font-bold ${item.statut === 'Succès' ? 'text-[#20A376]' : 'text-amber-500'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${item.statut === 'Succès' ? 'bg-[#20A376]' : 'bg-amber-500'}`}></span>
-                        {item.statut}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {/* Alerte succès */}
+      {successMessage && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl mb-4 text-sm flex items-start gap-2">
+          <CheckCircle className="text-emerald-500 shrink-0 mt-0.5" size={18} />
+          <span>{successMessage}</span>
         </div>
       )}
 
-      {/* --- SOUS-PANEL 3 : LOGS DE CONNEXION --- */}
-      {activeSubTab === 'securite' && (
-        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300">
-          <div className="p-4 border-b border-slate-50 bg-slate-50/50">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-              <Key size={14} className="text-amber-500" /> Historique d'accès d'infrastructure (Sessions)
-            </h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
-                  <th className="p-4">Acteur</th>
-                  <th className="p-4">Adresse IP</th>
-                  <th className="p-4">Terminal / Agent</th>
-                  <th className="p-4">Horodatage</th>
-                  <th className="p-4">Type de Log</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
-                {logsConnexions.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="p-4 font-bold text-slate-800">{log.utilisateur} <span className="text-[10px] text-slate-400 font-normal">({log.role})</span></td>
-                    <td className="p-4 font-mono text-slate-500">{log.ip}</td>
-                    <td className="p-4 truncate max-w-xs">{log.appareil}</td>
-                    <td className="p-4 text-slate-400">{log.date}</td>
-                    <td className="p-4">
-                      <span className={`px-2 py-1 rounded text-[10px] font-bold ${
-                        log.event.includes('Réussie') ? 'bg-emerald-50 text-[#20A376]' : 'bg-rose-50 text-rose-600 font-black animate-shake'
-                      }`}>
-                        {log.event}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* --- SOUS-PANEL 4 : AUDIT DES BUGS RENCONTRÉS --- */}
-      {activeSubTab === 'bugs' && (
-        <div className="space-y-4 transition-all duration-300">
-          
-          {/* Barre de filtrage des anomalies */}
-          <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
-            <div className="relative w-full sm:max-w-xs">
-              <Search size={14} className="absolute left-3 top-3 text-slate-400" />
-              <input 
-                type="text" 
-                value={searchLog}
-                onChange={(e) => setSearchLog(e.target.value)}
-                placeholder="Filtrer par module ou message de bug..." 
-                className="w-full text-xs pl-9 p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#20A376]"
+      {/* Étape A : Recherche de client */}
+      {!selectedClient ? (
+        <div className="space-y-4">
+          <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
+            <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Rechercher un membre</label>
+            <div className="relative">
+              <Search className="absolute left-3.5 top-3.5 text-slate-400" size={18} />
+              <input
+                type="text"
+                placeholder="Nom, prénom ou n° téléphone..."
+                className="w-full bg-slate-50 border-0 rounded-2xl pl-11 pr-4 py-3.5 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              <Filter size={14} className="text-slate-400" />
-              <select 
-                value={severityFilter}
-                onChange={(e) => setSeverityFilter(e.target.value)}
-                className="text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none"
-              >
-                <option value="ALL">Toutes les gravités</option>
-                <option value="CRITICAL">CRITICAL</option>
-                <option value="MAJOR">MAJOR</option>
-                <option value="MINOR">MINOR</option>
-              </select>
-            </div>
           </div>
 
-          {/* Table d'affichage des anomalies logguées */}
-          <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-slate-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
-                    <th className="p-4">Module Applicatif</th>
-                    <th className="p-4">Exception / Log Message</th>
-                    <th className="p-4">Sévérité</th>
-                    <th className="p-4">Date de capture</th>
-                    <th className="p-4">Résolution</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {filteredBugs.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="p-8 text-center text-slate-400">Aucun bug ou alerte système ne correspond à vos filtres actuels.</td>
-                    </tr>
-                  ) : (
-                    filteredBugs.map((bug) => (
-                      <tr key={bug.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="p-4 font-bold text-slate-800 flex items-center gap-1.5">
-                          <Bug size={14} className={bug.resolu ? 'text-slate-300' : 'text-rose-500'} />
-                          {bug.module}
-                        </td>
-                        <td className="p-4 font-mono text-slate-500 text-[11px] max-w-sm truncate" title={bug.message}>
-                          {bug.message}
-                        </td>
-                        <td className="p-4">
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-wide ${
-                            bug.gravite === 'CRITICAL' ? 'bg-rose-600 text-white animate-pulse' :
-                            bug.gravite === 'MAJOR' ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'
-                          }`}>
-                            {bug.gravite}
-                          </span>
-                        </td>
-                        <td className="p-4 text-slate-400">{bug.date}</td>
-                        <td className="p-4">
-                          {bug.resolu ? (
-                            <span className="text-[#20A376] font-bold flex items-center gap-1"><RefreshCw size={12} /> Corrigé</span>
-                          ) : (
-                            <span className="text-rose-500 font-black tracking-tight flex items-center gap-1"><ShieldAlert size={12} /> Actif (Non résolu)</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          {/* Liste des résultats */}
+          <div className="space-y-2.5">
+            {filteredClients.map((client) => (
+              <button
+                key={client.id}
+                onClick={() => setSelectedClient(client)}
+                className="w-full bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between text-left active:scale-[0.98] transition"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                    {client.first_name[0]}{client.last_name[0]}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800">{client.first_name} {client.last_name}</h3>
+                    <p className="text-xs text-slate-400">{client.phone} • {client.zone}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-slate-400 block">Solde</span>
+                  <span className="font-bold text-slate-800">{client.solde_principal.toLocaleString()} F</span>
+                </div>
+              </button>
+            ))}
+
+            {searchQuery && filteredClients.length === 0 && (
+              <p className="text-center text-slate-400 text-sm py-8">Aucun membre trouvé pour cette recherche.</p>
+            )}
           </div>
         </div>
-      )}
+      ) : (
+        /* Étape B : Formulaire de transaction express */
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Fiche Client Sélectionné */}
+          <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                {selectedClient.first_name[0]}{selectedClient.last_name[0]}
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-800">{selectedClient.first_name} {selectedClient.last_name}</h3>
+                <p className="text-xs text-slate-400">{selectedClient.phone}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={clearSession}
+              className="text-xs font-bold text-slate-400 hover:text-rose-500 uppercase px-3 py-1 rounded-lg hover:bg-rose-50 transition"
+            >
+              Changer
+            </button>
+          </div>
 
+          {/* Choix du type de transaction */}
+          <div className="grid grid-cols-2 gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+            <button
+              type="button"
+              className={`py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition ${transactionType === 'depot' ? 'bg-blue-600 text-white shadow-md' : 'bg-transparent text-slate-600'}`}
+              onClick={() => setTransactionType('depot')}
+            >
+              <Plus size={18} /> Dépôt Express
+            </button>
+            <button
+              type="button"
+              className={`py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition ${transactionType === 'retrait' ? 'bg-rose-600 text-white shadow-md' : 'bg-transparent text-slate-600'}`}
+              onClick={() => setTransactionType('retrait')}
+            >
+              <Minus size={18} /> Retrait Express
+            </button>
+          </div>
+
+          {/* Pavé de saisie et montant */}
+          <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+            <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider text-center">Montant de l'opération (XAF)</label>
+            <div className="relative flex items-center justify-center">
+              <input
+                type="number"
+                placeholder="0"
+                className="w-full text-center text-4xl font-extrabold border-0 bg-transparent text-slate-800 placeholder-slate-200 focus:ring-0"
+                value={montantSaisi}
+                onChange={(e) => setMontantSaisi(e.target.value)}
+                required
+              />
+              {montantSaisi && (
+                <button
+                  type="button"
+                  onClick={handleClearAmount}
+                  className="absolute right-4 text-xs font-bold text-slate-400 hover:text-slate-600"
+                >
+                  Effacer
+                </button>
+              )}
+            </div>
+
+            {/* Raccourcis de montants tactiles */}
+            <div className="grid grid-cols-3 gap-2 pt-2">
+              {QUICK_AMOUNTS.map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => handleQuickAmount(val)}
+                  className="bg-slate-50 text-slate-700 font-bold py-3.5 rounded-xl border border-slate-100 hover:bg-slate-100 active:scale-95 transition"
+                >
+                  +{val.toLocaleString()}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={handleClearAmount}
+                className="bg-rose-50 text-rose-600 font-bold py-3.5 rounded-xl border border-rose-100 hover:bg-rose-100 active:scale-95 transition"
+              >
+                C
+              </button>
+            </div>
+          </div>
+
+          {/* Validation */}
+          <button
+            type="submit"
+            className={`w-full py-4 rounded-2xl font-bold text-lg shadow-lg transition active:scale-[0.98] ${transactionType === 'depot' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-rose-600 text-white hover:bg-rose-700'}`}
+          >
+            Valider le {transactionType === 'depot' ? 'Dépôt' : 'Retrait'}
+          </button>
+        </form>
+      )}
     </div>
   );
-};
-
-export default AdminDashboard;
+}

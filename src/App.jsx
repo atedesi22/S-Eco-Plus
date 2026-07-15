@@ -288,6 +288,7 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import ClientDashboard from './pages/Dashboard/ClientDashboard';
+import CollecteTerrain from './pages/Dashboard/CollectriceDashboard.jsx';
 
 /**
  * Layout Global avec Gestion du Menu Mobile Connecté
@@ -376,8 +377,8 @@ function AppContent() {
     }
     
     // Rôles terrain (optionnel, pour plus tard si tu crées leurs routes)
-    if (user.role === 'collectrice') return '/client'; // Redirection temporaire vers client ou son dashboard
-    if (user.role === 'commercial') return '/client';
+    if (user.role === 'collectrice') return '/collectrice'; // Redirection temporaire vers client ou son dashboard
+    if (user.role === 'commercial') return '/commercial';
 
     return '/client';
   };
@@ -407,6 +408,16 @@ function AppContent() {
         element={
           <ProtectedRoute allowedRoles={['client']}>
             <ClientDashboard />
+          </ProtectedRoute>
+        } 
+      />
+
+      {/* Zone Collectrice Protégée */}
+      <Route 
+        path="/collectrice" 
+        element={
+          <ProtectedRoute allowedRoles={['collectrice', 'commercial']}>
+            <CollecteTerrain />
           </ProtectedRoute>
         } 
       />
